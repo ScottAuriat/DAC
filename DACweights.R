@@ -3,30 +3,34 @@
 y <- c(75000,75000)
 # x is the list of contributions eligible for the refund bonus
 x <- y[y>= 75000]
+
+# Below is a rate of decay based on the order of when they pledged
 a <- 0.5 # this is the rate of decay, if you get closer to 1 then the bonus is 
 # equally distributed, as you get to 0 everything goes to the first contributor 
 w <- rep(0,length(x)) # just creates a empty vector of 0's
 # the main for loop that returns the list of weights given 
 # an exponential decay 
-for (i in 1:length(x)) {
-  w[i] <- (a^i)*2000
-}
-# w_1 is the weights normalized so they sum to 1
-w
-w_1 <- (w/sum(w))*2000 
-w_1
-# we have the weights such that they sum to 1 in a decreasing sequence
-# but we also need to give extra to the donors that donated more
-# here we get w_2, the weights adjusted for different contribution amounts
-w_2 <- (x*w_1)/sum(x*w_1)*2000
-w_2
-# w_2 is normalized again to sum to 1
-# RB is the total amount contributed to the refund bonus
-RB <- 10000 # in this example 10k in refund bonus
-RB_each <- round(RB*(w_2/2000),0) # rounds to zero decimal points the amount
-# to be returned to each. This will sum to RB given W_2 sums to 1
-round(w_1,2)
-w_2
-RB_each # returns each contribution
-round(sum(y),0)
+xcount <- c(1:length(x))
+ETH <- 2000
+w <- a^xcount*ETH
+RB_each <- round(w*x/sum(w*x)*RB,0)
+RB_each
 
+
+# Below is a rate of decay based on time from contribution to the end of the 
+#campaign 
+# we then need a vector of time stamps for each contribution that counts
+# up  from  zero to the end, if by hours and we have ten days it would be 240 hours
+xt <- c(1,240) # this example the first donation is in the first hour
+# the second is in the final hour
+a <- 0.99 # this is the rate of decay, if you get closer to 1 then the bonus is 
+# equally distributed, as you get to 0 everything goes to the first contributor.
+# Given we will use 240 time stamps roughly, this will be much closer to 1. 
+# the main for loop that returns the list of weights given 
+w <- rep(0,length(x)) # just creates a empty vector of 0's
+ETH <- 2000  # multiply by an ETH
+w <- a^xt*ETH
+RB_each <- round(w*x/sum(w*x)*RB,0)
+RB_each
+# The first should bet 9179 and the last 830 given they donated the same amount
+# but it will a adjust depending on the donation 
